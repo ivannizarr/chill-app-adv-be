@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: chill_mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: chill_movie_db
+      MYSQL_USER: chill_user
+      MYSQL_PASSWORD: chill_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - chill_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: chill_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - chill_network
+
+volumes:
+  mysql_data:
+
+networks:
+  chill_network:
+    driver: bridge
