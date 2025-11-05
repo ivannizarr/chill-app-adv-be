@@ -1,8 +1,25 @@
+const { validationResult } = require('express-validator');
 const movieService = require('../services/movieService');
+
+const handleValidationErrors = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({
+      success: false,
+      errors: errors.array()
+    });
+    return false;
+  }
+  return true;
+};
 
 class MovieController {
   async getAllMovies(req, res) {
     try {
+      if (!handleValidationErrors(req, res)) {
+        return;
+      }
+
       const filters = {
         search: req.query.search,
         year: req.query.year,
@@ -35,6 +52,10 @@ class MovieController {
 
   async getMovieById(req, res) {
     try {
+      if (!handleValidationErrors(req, res)) {
+        return;
+      }
+
       const { id } = req.params;
       const movie = await movieService.getMovieById(id);
 
@@ -61,16 +82,11 @@ class MovieController {
 
   async createMovie(req, res) {
     try {
-      const movieData = req.body;
-
-      if (!movieData.title) {
-        return res.status(400).json({
-          success: false,
-          message: 'Judul film harus diisi'
-        });
+      if (!handleValidationErrors(req, res)) {
+        return;
       }
 
-      const newMovie = await movieService.createMovie(movieData);
+      const newMovie = await movieService.createMovie(req.body);
       res.status(201).json({
         success: true,
         data: newMovie,
@@ -87,17 +103,12 @@ class MovieController {
 
   async updateMovie(req, res) {
     try {
-      const { id } = req.params;
-      const movieData = req.body;
-
-      if (!movieData.title) {
-        return res.status(400).json({
-          success: false,
-          message: 'Judul film harus diisi'
-        });
+      if (!handleValidationErrors(req, res)) {
+        return;
       }
 
-      const updatedMovie = await movieService.updateMovie(id, movieData);
+      const { id } = req.params;
+      const updatedMovie = await movieService.updateMovie(id, req.body);
 
       if (!updatedMovie) {
         return res.status(404).json({
@@ -122,6 +133,10 @@ class MovieController {
 
   async deleteMovie(req, res) {
     try {
+      if (!handleValidationErrors(req, res)) {
+        return;
+      }
+
       const { id } = req.params;
       const deleted = await movieService.deleteMovie(id);
 
