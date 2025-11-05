@@ -3,11 +3,26 @@ const movieService = require('../services/movieService');
 class MovieController {
   async getAllMovies(req, res) {
     try {
-      const movies = await movieService.getAllMovies();
+      const filters = {
+        search: req.query.search,
+        year: req.query.year,
+        genre: req.query.genre,
+        rating_min: req.query.rating_min,
+        rating_max: req.query.rating_max,
+        language: req.query.language,
+        sort: req.query.sort,
+        order: req.query.order,
+        limit: req.query.limit,
+        page: req.query.page
+      };
+
+      const result = await movieService.getAllMovies(filters);
+
       res.status(200).json({
         success: true,
-        data: movies,
-        message: 'Berhasil mengambil semua data film'
+        data: result.data,
+        pagination: result.pagination,
+        message: 'Berhasil mengambil data film'
       });
     } catch (error) {
       res.status(500).json({
