@@ -2,9 +2,10 @@ const axios = require('axios');
 
 const BASE_URL = 'http://localhost:3000';
 
-// dummy data
+// GANTI DATA INI SEBELUM TESTING
 const testUser = {
-    name: 'Test User',
+    fullname: 'Test User',
+    username: 'testuser',
     email: 'test@example.com',
     password: 'Test123'
 };
@@ -73,7 +74,10 @@ async function runTests() {
         console.log(`   User ID: ${register.data.data.user.id}`);
         console.log(`   Token diterima: ${authToken.substring(0, 20)}...`);
     } else {
-        console.log(`   Error: ${register.error.message || register.error}`);
+        console.log(`   Error: ${register.error.message || JSON.stringify(register.error)}`);
+        if (register.error.errors) {
+            console.log(`   Validation errors: ${JSON.stringify(register.error.errors, null, 2)}`);
+        }
     }
 
     // Test Login User
@@ -96,7 +100,7 @@ async function runTests() {
         const profile = await makeRequest('GET', '/api/auth/profile', null, authToken);
         console.log(profile.success ? 'BERHASIL - Akses profil berhasil' : 'GAGAL - Akses profil gagal');
         if (profile.success) {
-            console.log(`   Nama: ${profile.data.data.name}`);
+            console.log(`   Nama: ${profile.data.data.fullname || profile.data.data.name}`);
             console.log(`   Email: ${profile.data.data.email}`);
         }
     }
@@ -114,14 +118,21 @@ async function runTests() {
 
     // Test Movies with Search/Filter
     console.log('\nTes 7: Movies dengan Search/Filter');
-    const searchMovies = await makeRequest('GET', '/api/movies?search=test&sort=title&order=ASC&limit=5');
+    const searchMovies = await makeRequest('GET', '/api/movies?search=test&sort=title&order=ASC&limit=5', null, authToken);
     console.log(searchMovies.success ? 'BERHASIL - Pencarian/filter movie berfungsi' : 'GAGAL - Pencarian/filter movie tidak berfungsi');
+    if (!searchMovies.success) {
+        console.log(`   Error: ${searchMovies.error.message || JSON.stringify(searchMovies.error)}`);
+    }
 
     // Test File Upload Test
     console.log('\nTes 8: Pengecekan Endpoint Upload');
-    const uploadTest = await makeRequest('POST', '/api/upload/profile-image', {}, authToken);
-    console.log('GAGAL - Tes upload gagal (diharapkan - tidak ada file)');
-    console.log('   Endpoint upload sudah dikonfigurasi dan dapat diakses');
+    const uploadTest = await makeRequest('POST', '/api/upload/upload', {}, authToken);
+    if (uploadTest.success === false && uploadTest.error.message === 'File tidak ditemukan') {
+        console.log('BERHASIL - Upload endpoint berfungsi (error validation benar)');
+        console.log('   Endpoint upload sudah dikonfigurasi dan dapat diakses');
+    } else {
+        console.log('GAGAL - Upload endpoint tidak merespon dengan benar');
+    }
 
     console.log('\n==========================================');
     console.log('TES API SELESAI');
