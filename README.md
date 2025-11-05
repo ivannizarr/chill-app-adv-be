@@ -1,59 +1,52 @@
 # Chill Movie API
-REST API film menggunakan Node.js, Express, dan MySQL.
 
-## Quick Start
+Backend REST API untuk aplikasi streaming film dengan Node.js, Express, dan MySQL.
 
-### Prerequisites
-- Node.js
-- Docker
+## Fitur
+- Authentication (register/login) dengan JWT
+- Movies API dengan search, filter, dan sorting
+- Upload file untuk profile dan movie image
+- Email verification dengan SMTP
+- Role-based authorization
 
-### Setup & Run
+## Setup
 
-1. Clone repo & install dependencies:
+1. Install dependencies:
 ```bash
-git clone <repository-url>
-cd chill-app-be-2
 npm install
 ```
 
-2. Start db:
+2. Configure environment:
+```bash
+cp .env
+```
+
+3. Start database:
 ```bash
 docker-compose up -d
 ```
 
-3. Run serve:
+4. Run server:
 ```bash
-npm run dev
+npm start
 ```
 
-Server: http://localhost:3000
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/movies | Get all movies |
-| GET | /api/movie/:id | Get movie by ID |
-| POST | /api/movie | Create new movie |
-| PATCH | /api/movie/:id | Update movie |
-| DELETE | /api/movie/:id | Delete movie |
+Server berjalan di: http://localhost:3000
 
 ## Testing
 
-### Basic Test:
+Testing SMTP:
 ```bash
-curl http://localhost:3000/api/movies
+npm run test:smtp
 ```
 
-### Create Movie:
+Testing API:
 ```bash
-curl -X POST http://localhost:3000/api/movie \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Test Movie", "description": "Test", "release_year": 2023, "rating": 8.0}'
+npm run test:api
 ```
 
-## Stop Services
+## API Utama
 
-```bash
-docker-compose down
-```
+- **Auth**: `/api/auth/register`, `/api/auth/login`
+- **Movies**: `/api/movies`
+- **Upload**: `/api/upload`
